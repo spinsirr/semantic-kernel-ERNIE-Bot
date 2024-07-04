@@ -4,31 +4,30 @@ namespace ERNIE_Bot.SDK.Models
 {
     public class EmbeddingsResponse
     {
-        [JsonPropertyName("id")]
-        public string Id { get; set; } = string.Empty;
+        [JsonPropertyName("id")] public string Id { get; set; } = string.Empty;
 
-        [JsonPropertyName("object")]
-        public string ObjectType { get; set; } = "embedding_list";
+        [JsonPropertyName("object")] public string ObjectType { get; set; } = "embedding_list";
 
-        [JsonPropertyName("created")]
-        public int Created { get; set; }
+        [JsonPropertyName("created")] public int Created { get; set; }
 
-        [JsonPropertyName("data")]
-        public List<EmbeddingData> Data { get; set; } = new List<EmbeddingData>();
+        [JsonPropertyName("data")] public List<EmbeddingData> Data { get; set; } = new List<EmbeddingData>();
 
-        [JsonPropertyName("usage")]
-        public UsageData Usage { get; set; } = new UsageData();
+        [JsonPropertyName("usage")] public UsageData Usage { get; set; } = new UsageData();
     }
 
     public class EmbeddingData
     {
-        [JsonPropertyName("object")]
-        public string ObjectType { get; set; } = "embedding";
+        [JsonPropertyName("object")] public string ObjectType { get; set; } = "embedding";
 
-        [JsonPropertyName("embedding")]
-        public List<double> Embedding { get; set; } = new List<double>();
+        [JsonPropertyName("embedding")] public List<double> Embedding { get; set; } = new List<double>();
 
-        [JsonPropertyName("index")]
-        public int Index { get; set; }
+        [JsonPropertyName("index")] public int Index { get; set; }
     }
+
+
+    [JsonSerializable(typeof(EmbeddingsResponse))]
+    public partial class EmbeddingsResponseSerializationContext : JsonSerializerContext;
+
+    [JsonSerializable(typeof(EmbeddingData))]
+    public partial class EmbeddingsDataSerializationContext : JsonSerializerContext;
 }
