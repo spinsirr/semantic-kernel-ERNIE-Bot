@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using System.Threading.RateLimiting;
 
 namespace ERNIE_Bot.SDK
@@ -70,7 +71,7 @@ namespace ERNIE_Bot.SDK
 
             var response = await _client.SendAsync(webRequest, cancellationToken).ConfigureAwait(false);
 
-            return await ParseResponseAsync<ChatResponse>(response).ConfigureAwait(false);
+            return await ParseResponseAsync<ChatResponse>(response, ChatResponseSerializationContext.Default.ChatResponse).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -116,7 +117,7 @@ namespace ERNIE_Bot.SDK
 
             var response = await _client.SendAsync(webRequest, cancellationToken).ConfigureAwait(false);
 
-            return await ParseResponseAsync<EmbeddingsResponse>(response).ConfigureAwait(false);
+            return await ParseResponseAsync(response, EmbeddingsResponseSerializationContext.Default.EmbeddingsResponse).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -132,7 +133,7 @@ namespace ERNIE_Bot.SDK
 
             var response = await _client.SendAsync(webRequest, cancellationToken).ConfigureAwait(false);
 
-            return await ParseResponseAsync<EmbeddingsResponse>(response).ConfigureAwait(false);
+            return await ParseResponseAsync(response, EmbeddingsResponseSerializationContext.Default.EmbeddingsResponse).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -154,7 +155,7 @@ namespace ERNIE_Bot.SDK
 
             var webRequest = new HttpRequestMessage(HttpMethod.Post, url);
             var response = await _client.SendAsync(webRequest, cancellationToken).ConfigureAwait(false);
-            var accessToken = await ParseResponseAsync<AccessTokenResponse>(response).ConfigureAwait(false);
+            var accessToken = await ParseResponseAsync<AccessTokenResponse>(response, AccessTokenResponseSerializationContext.Default.AccessTokenResponse).ConfigureAwait(false);
 
             if (string.IsNullOrWhiteSpace(accessToken.AccessToken))
             {
@@ -184,17 +185,17 @@ namespace ERNIE_Bot.SDK
             return request;
         }
 
-        private async Task<TResponse> ParseResponseAsync<TResponse>(HttpResponseMessage response)
+        private async Task<TResponse> ParseResponseAsync<TResponse>(HttpResponseMessage response, JsonTypeInfo<TResponse> jsonTypeInfo)
         {
             var responseJson = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var error = JsonSerializer.Deserialize<ERNIEBotError>(responseJson);
+            var error = JsonSerializer.Deserialize(responseJson, ERNIEBotErrorSerializeContext.Default.ERNIEBotError);
 
             if (error?.Code != -1)
             {
                 throw new ERNIEBotException(error);
             }
 
-            var result = JsonSerializer.Deserialize<TResponse>(responseJson);
+            var result = JsonSerializer.Deserialize(responseJson, jsonTypeInfo);
             if (result != null)
             {
                 return result;

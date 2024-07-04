@@ -11,6 +11,9 @@ namespace ERNIE_Bot.SDK.Models
         public string Message { get; set; } = "unknown";
     }
 
+    [JsonSerializable(typeof(ERNIEBotError))]
+    public partial class ERNIEBotErrorSerializeContext : JsonSerializerContext;
+
     public class ERNIEBotException : Exception
     {
         public ERNIEBotError Error { get; }
